@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurismoPlus - Inicio</title>
+    <style>
+        /* Estilos generales */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        /* Barra de navegación */
+        nav {
+            background-color: #1a73e8;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            position: relative;
+        }
+        
+        .nav-links a:hover::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+        }
+        
+        .active {
+            font-weight: bold;
+        }
+        
+        /* Banner */
+        .banner {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .banner h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .banner p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+        
+        /* Búsqueda rápida */
+        .search-container {
+            background-color: white;
+            max-width: 1000px;
+            margin: -2rem auto 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .search-form input, .search-form select {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .search-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .search-btn:hover {
+            background-color: #0d5bba;
+        }
+        
+        /* Categorías */
+        .categories {
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            padding: 0 2rem;
+        }
+        
+        .categories h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .category-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .category-img {
+            height: 150px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #555;
+        }
+        
+        .category-info {
+            padding: 1.5rem;
+        }
+        
+        .category-info h3 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .category-info p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .category-link {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .category-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Testimonios */
+        .testimonials {
+            background-color: #f9f9f9;
+            padding: 3rem 2rem;
+        }
+        
+        .testimonials-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .testimonials h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+        
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .testimonial-card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 1rem;
+            color: #555;
+        }
+        
+        .testimonial-author {
+            font-weight: bold;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1a73e8;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #666;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 3rem 2rem;
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-column h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-column a {
+            color: #ddd;
+            text-decoration: none;
+        }
+        
+        .footer-column a:hover {
+            text-decoration: underline;
+        }
+        
+        .copyright {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #555;
+            color: #aaa;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .banner h1 {
+                font-size: 2rem;
+            }
+            
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de navegación -->
+    <nav>
+        <div class="logo">TurismoPlus</div>
+        <div class="nav-links">
+            <a href="#" class="active">🏠 Inicio</a>
+            <a href="#">🔍 Explorar</a>
+            <a href="#">💬 Chat</a>
+            <a href="#">📝 Reseñas</a>
+            <a href="#">⭐ Fidelización</a>
+            <a href="#">👤 Mi Cuenta</a>
+        </div>
+    </nav>
+    
+    <!-- Banner con ofertas destacadas -->
+    <section class="banner">
+        <h1>Descubre los mejores destinos</h1>
+        <p>Encuentra ofertas exclusivas en hoteles, tours y experiencias únicas para tus próximas vacaciones.</p>
+    </section>
+    
+    <!-- Búsqueda rápida -->
+    <section class="search-container">
+        <form class="search-form">
+            <input type="text" placeholder="¿A dónde vas?" aria-label="Ubicación">
+            <input type="date" placeholder="Fecha de entrada" aria-label="Fecha de entrada">
+            <input type="date" placeholder="Fecha de salida" aria-label="Fecha de salida">
+            <select aria-label="Tipo de servicio">
+                <option value="">Tipo de servicio</option>
+                <option value="hotel">Hoteles</option>
+                <option value="tour">Tours</option>
+                <option value="restaurant">Restaurantes</option>
+                <option value="activity">Actividades</option>
+            </select>
+            <button type="submit" class="search-btn">Buscar</button>
+        </form>
+    </section>
+    
+    <!-- Categorías principales -->
+    <section class="categories">
+        <h2>Explora nuestras categorías</h2>
+        <div class="category-grid">
+            <div class="category-card">
+                <div class="category-img">🏨</div>
+                <div class="category-info">
+                    <h3>Hoteles</h3>
+                    <p>Encuentra el alojamiento perfecto para tu viaje, desde lujosos resorts hasta acogedores B&B.</p>
+                    <a href="#" class="category-link">Ver hoteles →</a>
+                </div>
+            </div>
+            <div class="category-card">
+                <div class="category-img">🗺️</div>
+                <div class="category-info">
+                    <h3>Tours</h3>
+                    <p>Descubre experiencias guiadas con expertos locales que te mostrarán lo mejor de cada destino.</p>
+                    <a href="#" class="category-link">Ver tours →</a>
+                </div>
+            </div>
+            <div class="category-card">
+                <div class="category-img">🍽️</div>
+                <div class="category-info">
+                    <h3>Restaurantes</h3>
+                    <p>Reserva en los mejores restaurantes y disfruta de la gastronomía local donde quiera que vayas.</p>
+                    <a href="#" class="category-link">Ver restaurantes →</a>
+                </div>
+            </div>
+            <div class="category-card">
+                <div class="category-img">🚗</div>
+                <div class="category-info">
+                    <h3>Transporte</h3>
+                    <p>Alquiler de coches, traslados y otros servicios de transporte para moverte con facilidad.</p>
+                    <a href="#" class="category-link">Ver transporte →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonios y cifras destacadas -->
+    <section class="testimonials">
+        <div class="testimonials-container">
+            <h2>Lo que dicen nuestros usuarios</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"Gracias a TurismoPlus encontré el hotel perfecto para nuestras vacaciones familiares a un precio increíble."</p>
+                    <p class="testimonial-author">- María G., Madrid</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"La variedad de tours disponibles me permitió conocer lugares que nunca hubiera descubierto por mi cuenta."</p>
+                    <p class="testimonial-author">- Carlos P., Barcelona</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"El sistema de reservas es tan sencillo que ya he planificado tres viajes este año usando esta plataforma."</p>
+                    <p class="testimonial-author">- Laura M., Valencia</p>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">50,000+</div>
+                    <div class="stat-label">Servicios disponibles</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1M+</div>
+                    <div class="stat-label">Usuarios satisfechos</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">120+</div>
+                    <div class="stat-label">Países cubiertos</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">4.8★</div>
+                    <div class="stat-label">Valoración promedio</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>TurismoPlus</h3>
+                <ul>
+                    <li><a href="#">Sobre nosotros</a></li>
+                    <li><a href="#">Carreras</a></li>
+                    <li><a href="#">Prensa</a></li>
+                    <li><a href="#">Blog</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Información</h3>
+                <ul>
+                    <li><a href="#">Preguntas frecuentes</a></li>
+                    <li><a href="#">Términos y condiciones</a></li>
+                    <li><a href="#">Política de privacidad</a></li>
+                    <li><a href="#">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Servicios</h3>
+                <ul>
+                    <li><a href="#">Hoteles</a></li>
+                    <li><a href="#">Tours</a></li>
+                    <li><a href="#">Restaurantes</a></li>
+                    <li><a href="#">Actividades</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Descarga nuestra app</h3>
+                <ul>
+                    <li><a href="#">App Store</a></li>
+                    <li><a href="#">Google Play</a></li>
+                    <li><a href="#">App Gallery</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            © 2023 TurismoPlus. Todos los derechos reservados.
+        </div>
+    </footer>
+</body>
+</html>
