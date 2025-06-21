@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorar La Araucanía</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        nav {
+            background-color: #1a73e8;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            position: relative;
+        }
+        
+        .nav-links a:hover::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+        }
+        
+        .active {
+            font-weight: bold;
+        }
+        
+        .explore-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            max-width: 1400px;
+            margin: 2rem auto;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+        
+        .filters {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        
+        .filters h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            color: #1a73e8;
+        }
+        
+        .filter-section {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1.5rem;
+        }
+        
+        .filter-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .filter-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            color: #555;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .filter-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .filter-option label {
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .price-range {
+            width: 100%;
+        }
+        
+        .price-values {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #777;
+        }
+        
+        .rating-stars {
+            display: flex;
+            gap: 0.3rem;
+            margin-top: 0.5rem;
+        }
+        
+        .star {
+            color: #ffb400;
+            cursor: pointer;
+        }
+        
+        .results {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 1.5rem;
+        }
+        
+        .view-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .view-btn {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .view-btn.active {
+            background-color: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+        }
+        
+        .sort-options select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .map-container {
+            height: 400px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        #explore-map {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .results-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .result-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .result-img {
+            height: 180px;
+            background-color: #eee;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .result-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: #ff4757;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .result-info {
+            padding: 1.5rem;
+        }
+        
+        .result-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-location {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: #777;
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .result-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .result-rating .stars {
+            color: #ffb400;
+        }
+        
+        .result-rating .count {
+            font-size: 0.8rem;
+            color: #777;
+        }
+        
+        .result-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+            color: #555;
+        }
+        
+        .result-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .price {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #1a73e8;
+        }
+        
+        .price small {
+            font-size: 0.9rem;
+            font-weight: normal;
+            color: #777;
+        }
+        
+        .book-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .book-btn:hover {
+            background-color: #0d5bba;
+        }
+        
+        @media (max-width: 1024px) {
+            .explore-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                position: sticky;
+                top: 1rem;
+                z-index: 100;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .view-options {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">Turismo Araucanía</div>
+        <div class="nav-links">
+            <a href="#">🏠 Inicio</a>
+            <a href="#" class="active">🔍 Explorar</a>
+            <a href="#">💬 Chat</a>
+            <a href="#">📝 Reseñas</a>
+            <a href="#">⭐ Fidelización</a>
+            <a href="#">👤 Mi Cuenta</a>
+        </div>
+    </nav>
+    
+    <main class="explore-container">
+        <aside class="filters">
+            <h2>Filtrar resultados</h2>
+            
+            <div class="filter-section">
+                <h3>Zona de La Araucanía</h3>
+                <div class="filter-options">
+                    <div class="filter-option">
+                        <input type="checkbox" id="lacustre" checked>
+                        <label for="lacustre">Araucanía Lacustre</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="andina" checked>
+                        <label for="andina">Araucanía Andina</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="costera" checked>
+                        <label for="costera">Araucanía Costera</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="nahuelbuta" checked>
+                        <label for="nahuelbuta">Nahuelbuta</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="temuco" checked>
+                        <label for="temuco">Temuco y alrededores</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h3>Rango de precios (CLP)</h3>
+                <input type="range" min="0" max="500000" value="250000" class="price-range">
+                <div class="price-values">
+                    <span>$0</span>
+                    <span>$500.000</span>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h3>Calificación</h3>
+                <div class="rating-stars">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h3>Servicios</h3>
+                <div class="filter-options">
+                    <div class="filter-option">
+                        <input type="checkbox" id="wifi">
+                        <label for="wifi">WiFi gratis</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="piscina">
+                        <label for="piscina">Piscina</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="accesibilidad">
+                        <label for="accesibilidad">Accesibilidad</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="restaurante">
+                        <label for="restaurante">Restaurante</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="termas">
+                        <label for="termas">Termas</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h3>Tipo de turismo</h3>
+                <div class="filter-options">
+                    <div class="filter-option">
+                        <input type="checkbox" id="aventura">
+                        <label for="aventura">Aventura</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="cultural">
+                        <label for="cultural">Cultural</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="naturaleza">
+                        <label for="naturaleza">Naturaleza</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="gastronomico">
+                        <label for="gastronomico">Gastronómico</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="relajacion">
+                        <label for="relajacion">Relajación</label>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="book-btn" style="width: 100%; margin-top: 1rem;">Aplicar filtros</button>
+        </aside>
+        
+        <section class="results">
+            <div class="view-options">
+                <div class="view-toggle">
+                    <button class="view-btn active">Mapa</button>
+                    <button class="view-btn">Lista</button>
+                    <button class="view-btn">Tarjetas</button>
+                </div>
+                <div class="sort-options">
+                    <select>
+                        <option>Ordenar por: Destacados</option>
+                        <option>Precio: menor a mayor</option>
+                        <option>Precio: mayor a menor</option>
+                        <option>Mejor calificación</option>
+                        <option>Más recientes</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="map-container">
+                <div id="explore-map"></div>
+            </div>
+            
+            <div class="results-list">
+                <!-- Pucón -->
+                <article class="result-card">
+                    <div class="result-img" style="background-image: url('https://images.unsplash.com/photo-1582972236019-ea9e5d828a21')">
+                        <span class="result-badge">Popular</span>
+                    </div>
+                    <div class="result-info">
+                        <h3 class="result-title">Pucón</h3>
+                        <div class="result-location">
+                            <span>📍</span>
+                            <span>Araucanía Lacustre</span>
+                        </div>
+                        <div class="result-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="count">(428)</span>
+                        </div>
+                        <div class="result-features">
+                            <span class="feature">🏔️ Volcán Villarrica</span>
+                            <span class="feature">🏊 Lago Villarrica</span>
+                            <span class="feature">♨️ Termas</span>
+                            <span class="feature">⛷️ Centro de ski</span>
+                        </div>
+                        <div class="result-price">
+                            <div class="price">
+                                $120.000 <small>/noche promedio</small>
+                            </div>
+                            <button class="book-btn">Explorar</button>
+                        </div>
+                    </div>
+                </article>
+                
+                <!-- Parque Nacional Conguillío -->
+                <article class="result-card">
+                    <div class="result-img" style="background-image: url('https://images.unsplash.com/photo-1605540436563-5bca919ae766')">
+                        <span class="result-badge">Patrimonio</span>
+                    </div>
+                    <div class="result-info">
+                        <h3 class="result-title">Parque Nacional Conguillío</h3>
+                        <div class="result-location">
+                            <span>📍</span>
+                            <span>Araucanía Andina</span>
+                        </div>
+                        <div class="result-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="count">(312)</span>
+                        </div>
+                        <div class="result-features">
+                            <span class="feature">🌲 Araucarias milenarias</span>
+                            <span class="feature">🌋 Volcán Llaima</span>
+                            <span class="feature">🏞️ Laguna Arcoíris</span>
+                            <span class="feature">🥾 Senderismo</span>
+                        </div>
+                        <div class="result-price">
+                            <div class="price">
+                                $8.000 <small>/entrada adulto</small>
+                            </div>
+                            <button class="book-btn">Explorar</button>
+                        </div>
+                    </div>
+                </article>
+                
+                <!-- Lago Budi -->
+                <article class="result-card">
+                    <div class="result-img" style="background-image: url('https://images.unsplash.com/photo-1601979031925-424e53b6caaa')">
+                        <span class="result-badge">Cultural</span>
+                    </div>
+                    <div class="result-info">
+                        <h3 class="result-title">Lago Budi</h3>
+                        <div class="result-location">
+                            <span>📍</span>
+                            <span>Araucanía Costera</span>
+                        </div>
+                        <div class="result-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="count">(187)</span>
+                        </div>
+                        <div class="result-features">
+                            <span class="feature">🛶 Paseos en wampo</span>
+                            <span class="feature">🏕️ Turismo mapuche</span>
+                            <span class="feature">🍽️ Gastronomía local</span>
+                            <span class="feature">🦅 Avistamiento de aves</span>
+                        </div>
+                        <div class="result-price">
+                            <div class="price">
+                                $25.000 <small>/experiencia</small>
+                            </div>
+                            <button class="book-btn">Explorar</button>
+                        </div>
+                    </div>
+                </article>
+                
+                <!-- Termas de Malalcahuello -->
+                <article class="result-card">
+                    <div class="result-img" style="background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945')">
+                        <span class="result-badge">Relax</span>
+                    </div>
+                    <div class="result-info">
+                        <h3 class="result-title">Termas de Malalcahuello</h3>
+                        <div class="result-location">
+                            <span>📍</span>
+                            <span>Araucanía Andina</span>
+                        </div>
+                        <div class="result-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="count">(256)</span>
+                        </div>
+                        <div class="result-features">
+                            <span class="feature">♨️ Aguas termales</span>
+                            <span class="feature">🏔️ Vista al volcán</span>
+                            <span class="feature">🛌 Alojamiento</span>
+                            <span class="feature">🧖‍♀️ Spa</span>
+                        </div>
+                        <div class="result-price">
+                            <div class="price">
+                                $45.000 <small>/adulto día</small>
+                            </div>
+                            <button class="book-btn">Explorar</button>
+                        </div>
+                    </div>
+                </article>
+                
+                <!-- Parque Nacional Nahuelbuta -->
+                <article class="result-card">
+                    <div class="result-img" style="background-image: url('https://images.unsplash.com/photo-1601972599720-36938d4ecd31')">
+                        <span class="result-badge">Naturaleza</span>
+                    </div>
+                    <div class="result-info">
+                        <h3 class="result-title">Parque Nacional Nahuelbuta</h3>
+                        <div class="result-location">
+                            <span>📍</span>
+                            <span>Nahuelbuta</span>
+                        </div>
+                        <div class="result-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="count">(143)</span>
+                        </div>
+                        <div class="result-features">
+                            <span class="feature">🌲 Araucarias</span>
+                            <span class="feature">🥾 Senderos</span>
+                            <span class="feature">🌄 Miradores</span>
+                            <span class="feature">🦊 Fauna nativa</span>
+                        </div>
+                        <div class="result-price">
+                            <div class="price">
+                                $6.000 <small>/entrada adulto</small>
+                            </div>
+                            <button class="book-btn">Explorar</button>
+                        </div>
+                    </div>
+                </article>
+                
+                <!-- Temuco -->
+                <article class="result-card">
+                    <div class="result-img" style="background-image: url('https://images.unsplash.com/photo-1605540436563-5bca919ae766')">
+                        <span class="result-badge">Ciudad</span>
+                    </div>
+                    <div class="result-info">
+                        <h3 class="result-title">Temuco</h3>
+                        <div class="result-location">
+                            <span>📍</span>
+                            <span>Capital Regional</span>
+                        </div>
+                        <div class="result-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="count">(298)</span>
+                        </div>
+                        <div class="result-features">
+                            <span class="feature">🏛️ Museos</span>
+                            <span class="feature">🛍️ Compras</span>
+                            <span class="feature">🍽️ Gastronomía</span>
+                            <span class="feature">🏨 Buena conexión</span>
+                        </div>
+                        <div class="result-price">
+                            <div class="price">
+                                $60.000 <small>/noche promedio</small>
+                            </div>
+                            <button class="book-btn">Explorar</button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+    
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Inicializar mapa centrado en La Araucanía
+        const map = L.map('explore-map').setView([-38.5, -72], 8);
+        
+        // Añadir capa de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Añadir marcadores para los principales destinos de La Araucanía
+        const araucaniaMarkers = [
+            {
+                coords: [-39.2823, -71.9773],
+                title: "Pucón",
+                type: "lacustre",
+                icon: "🏔️"
+            },
+            {
+                coords: [-38.6658, -71.6497],
+                title: "Parque Nacional Conguillío",
+                type: "andina",
+                icon: "🌲"
+            },
+            {
+                coords: [-38.8833, -73.3167],
+                title: "Lago Budi",
+                type: "costera",
+                icon: "🛶"
+            },
+            {
+                coords: [-38.4519, -71.6486],
+                title: "Termas de Malalcahuello",
+                type: "andina",
+                icon: "♨️"
+            },
+            {
+                coords: [-37.8333, -73.0167],
+                title: "Parque Nacional Nahuelbuta",
+                type: "nahuelbuta",
+                icon: "🌳"
+            },
+            {
+                coords: [-38.7399, -72.5981],
+                title: "Temuco",
+                type: "temuco",
+                icon: "🏙️"
+            },
+            {
+                coords: [-39.2696, -71.9475],
+                title: "Volcán Villarrica",
+                type: "lacustre",
+                icon: "🌋"
+            },
+            {
+                coords: [-39.2667, -71.6833],
+                title: "Termas Geométricas",
+                type: "lacustre",
+                icon: "🧖"
+            },
+            {
+                coords: [-38.4167, -71.8333],
+                title: "Reserva Nacional Malalcahuello",
+                type: "andina",
+                icon: "🏞️"
+            },
+            {
+                coords: [-38.9833, -73.2333],
+                title: "Puerto Saavedra",
+                type: "costera",
+                icon: "🏖️"
+            }
+        ];
+        
+        // Añadir marcadores al mapa
+        araucaniaMarkers.forEach(marker => {
+            L.marker(marker.coords, {
+                icon: L.divIcon({
+                    html: `<div style="font-size: 24px;">${marker.icon}</div>`,
+                    className: 'marker-icon'
+                })
+            })
+            .addTo(map)
+            .bindPopup(`<b>${marker.title}</b><br>${marker.type.replace(/([A-Z])/g, ' $1').trim()}`);
+        });
+        
+        // Alternar entre vistas
+        const viewBtns = document.querySelectorAll('.view-btn');
+        const mapContainer = document.querySelector('.map-container');
+        const resultsList = document.querySelector('.results-list');
+        
+        viewBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                viewBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                if (btn.textContent === 'Mapa') {
+                    mapContainer.style.display = 'block';
+                    resultsList.style.display = 'grid';
+                } else if (btn.textContent === 'Lista') {
+                    mapContainer.style.display = 'none';
+                    resultsList.style.display = 'block';
+                    resultsList.classList.remove('grid-view');
+                } else if (btn.textContent === 'Tarjetas') {
+                    mapContainer.style.display = 'none';
+                    resultsList.style.display = 'grid';
+                }
+            });
+        });
+        
+        // Filtrar por zona de La Araucanía
+        const zoneFilters = document.querySelectorAll('.filter-options input[type="checkbox"]');
+        const applyFiltersBtn = document.querySelector('.filters .book-btn');
+        
+        applyFiltersBtn.addEventListener('click', () => {
+            const selectedZones = [];
+            zoneFilters.forEach(filter => {
+                if (filter.checked) {
+                    selectedZones.push(filter.id);
+                }
+            });
+            
+            console.log("Zonas seleccionadas:", selectedZones);
+            // Aquí iría la lógica para filtrar los resultados
+            alert(`Mostrando resultados para: ${selectedZones.join(', ')}`);
+        });
+    </script>
+</body>
+</html>
