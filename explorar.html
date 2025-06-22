@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Explorar La Araucanía</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
         * {
             margin: 0;
@@ -26,6 +25,8 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1000;
         }
         
         .logo {
@@ -67,6 +68,7 @@
             margin: 2rem auto;
             gap: 2rem;
             padding: 0 1rem;
+            position: relative;
         }
         
         .filters {
@@ -75,6 +77,8 @@
             padding: 1.5rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             height: fit-content;
+            position: relative;
+            z-index: 10; /* Asegurar que esté sobre el mapa */
         }
         
         .filters h2 {
@@ -150,6 +154,7 @@
             display: grid;
             grid-template-rows: auto 1fr;
             gap: 1.5rem;
+            position: relative;
         }
         
         .view-options {
@@ -160,6 +165,8 @@
             padding: 1rem 1.5rem;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10; /* Asegurar que esté sobre el mapa */
         }
         
         .view-toggle {
@@ -189,21 +196,26 @@
         }
         
         .map-container {
-            height: 400px;
+            height: 500px; /* Mayor altura para mejor visualización */
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1; /* Nivel inferior para el mapa */
         }
         
         #explore-map {
             height: 100%;
             width: 100%;
+            position: relative;
         }
         
         .results-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
+            position: relative;
+            z-index: 10; /* Asegurar que esté sobre el mapa */
         }
         
         .result-card {
@@ -330,6 +342,11 @@
                 top: 1rem;
                 z-index: 100;
             }
+            
+            /* Asegurar que el mapa tenga suficiente espacio */
+            .map-container {
+                margin-top: 20px;
+            }
         }
         
         @media (max-width: 768px) {
@@ -342,6 +359,56 @@
                 gap: 1rem;
                 align-items: flex-start;
             }
+            
+            .map-container {
+                height: 400px;
+            }
+        }
+        
+        /* Estilos para ventanas de información de Google Maps */
+        .gm-style .gm-style-iw {
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .gm-style .gm-style-iw-c {
+            padding: 0;
+            max-width: 250px;
+        }
+        
+        .gm-style .gm-style-iw-d {
+            padding: 0;
+            overflow: hidden !important;
+        }
+        
+        .gm-style-iw-title {
+            font-weight: bold;
+            color: #1a73e8;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .gm-style-iw-content {
+            font-size: 14px;
+            color: #555;
+        }
+        
+        /* Botón para centrar mapa en la posición actual */
+        .center-map-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
     </style>
 </head>
@@ -483,6 +550,7 @@
             
             <div class="map-container">
                 <div id="explore-map"></div>
+                <button class="center-map-btn" id="center-map">📍 Centrar Mapa</button>
             </div>
             
             <div class="results-list">
@@ -669,91 +737,165 @@
         </section>
     </main>
     
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9B6zCDGY_Cywmpv-8sRxvff8T0LeSd-0&callback=initMap" async defer></script>
+    
     <script>
-        // Inicializar mapa centrado en La Araucanía
-        const map = L.map('explore-map').setView([-38.5, -72], 8);
+        // Variables globales
+        let map;
+        let markers = [];
+        let currentPosition = { lat: -38.5, lng: -72 };
         
-        // Añadir capa de OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-        
-        // Añadir marcadores para los principales destinos de La Araucanía
-        const araucaniaMarkers = [
-            {
-                coords: [-39.2823, -71.9773],
-                title: "Pucón",
-                type: "lacustre",
-                icon: "🏔️"
-            },
-            {
-                coords: [-38.6658, -71.6497],
-                title: "Parque Nacional Conguillío",
-                type: "andina",
-                icon: "🌲"
-            },
-            {
-                coords: [-38.8833, -73.3167],
-                title: "Lago Budi",
-                type: "costera",
-                icon: "🛶"
-            },
-            {
-                coords: [-38.4519, -71.6486],
-                title: "Termas de Malalcahuello",
-                type: "andina",
-                icon: "♨️"
-            },
-            {
-                coords: [-37.8333, -73.0167],
-                title: "Parque Nacional Nahuelbuta",
-                type: "nahuelbuta",
-                icon: "🌳"
-            },
-            {
-                coords: [-38.7399, -72.5981],
-                title: "Temuco",
-                type: "temuco",
-                icon: "🏙️"
-            },
-            {
-                coords: [-39.2696, -71.9475],
-                title: "Volcán Villarrica",
-                type: "lacustre",
-                icon: "🌋"
-            },
-            {
-                coords: [-39.2667, -71.6833],
-                title: "Termas Geométricas",
-                type: "lacustre",
-                icon: "🧖"
-            },
-            {
-                coords: [-38.4167, -71.8333],
-                title: "Reserva Nacional Malalcahuello",
-                type: "andina",
-                icon: "🏞️"
-            },
-            {
-                coords: [-38.9833, -73.2333],
-                title: "Puerto Saavedra",
-                type: "costera",
-                icon: "🏖️"
-            }
-        ];
-        
-        // Añadir marcadores al mapa
-        araucaniaMarkers.forEach(marker => {
-            L.marker(marker.coords, {
-                icon: L.divIcon({
-                    html: `<div style="font-size: 24px;">${marker.icon}</div>`,
-                    className: 'marker-icon'
-                })
-            })
-            .addTo(map)
-            .bindPopup(`<b>${marker.title}</b><br>${marker.type.replace(/([A-Z])/g, ' $1').trim()}`);
-        });
+        // Función para inicializar Google Maps
+        function initMap() {
+            // Crear el mapa
+            map = new google.maps.Map(document.getElementById('explore-map'), {
+                zoom: 8,
+                center: currentPosition,
+                styles: [
+                    {
+                        "featureType": "administrative",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#444444"}]
+                    },
+                    {
+                        "featureType": "landscape",
+                        "elementType": "all",
+                        "stylers": [{"color": "#f2f2f2"}]
+                    },
+                    {
+                        "featureType": "poi",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "all",
+                        "stylers": [{"saturation": -100}, {"lightness": 45}]
+                    },
+                    {
+                        "featureType": "road.highway",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "simplified"}]
+                    },
+                    {
+                        "featureType": "road.arterial",
+                        "elementType": "labels.icon",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "featureType": "transit",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "all",
+                        "stylers": [{"color": "#c6e6f4"}, {"visibility": "on"}]
+                    }
+                ]
+            });
+            
+            // Definir los marcadores para los principales destinos
+            const destinations = [
+                {
+                    position: { lat: -39.2823, lng: -71.9773 },
+                    title: "Pucón",
+                    type: "Araucanía Lacustre",
+                    icon: "🏔️"
+                },
+                {
+                    position: { lat: -38.6658, lng: -71.6497 },
+                    title: "Parque Nacional Conguillío",
+                    type: "Araucanía Andina",
+                    icon: "🌲"
+                },
+                {
+                    position: { lat: -38.8833, lng: -73.3167 },
+                    title: "Lago Budi",
+                    type: "Araucanía Costera",
+                    icon: "🛶"
+                },
+                {
+                    position: { lat: -38.4519, lng: -71.6486 },
+                    title: "Termas de Malalcahuello",
+                    type: "Araucanía Andina",
+                    icon: "♨️"
+                },
+                {
+                    position: { lat: -37.8333, lng: -73.0167 },
+                    title: "Parque Nacional Nahuelbuta",
+                    type: "Nahuelbuta",
+                    icon: "🌳"
+                },
+                {
+                    position: { lat: -38.7399, lng: -72.5981 },
+                    title: "Temuco",
+                    type: "Capital Regional",
+                    icon: "🏙️"
+                },
+                {
+                    position: { lat: -39.2696, lng: -71.9475 },
+                    title: "Volcán Villarrica",
+                    type: "Araucanía Lacustre",
+                    icon: "🌋"
+                },
+                {
+                    position: { lat: -39.2667, lng: -71.6833 },
+                    title: "Termas Geométricas",
+                    type: "Araucanía Lacustre",
+                    icon: "🧖"
+                },
+                {
+                    position: { lat: -38.4167, lng: -71.8333 },
+                    title: "Reserva Nacional Malalcahuello",
+                    type: "Araucanía Andina",
+                    icon: "🏞️"
+                },
+                {
+                    position: { lat: -38.9833, lng: -73.2333 },
+                    title: "Puerto Saavedra",
+                    type: "Araucanía Costera",
+                    icon: "🏖️"
+                }
+            ];
+            
+            // Crear marcadores con ventanas de información
+            destinations.forEach(destination => {
+                const marker = new google.maps.Marker({
+                    position: destination.position,
+                    map: map,
+                    title: destination.title,
+                    label: {
+                        text: destination.icon,
+                        fontSize: "18px"
+                    }
+                });
+                
+                markers.push(marker);
+                
+                // Crear ventana de información
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div class="gm-style-iw">
+                            <div class="gm-style-iw-title">${destination.title}</div>
+                            <div class="gm-style-iw-content">${destination.type}</div>
+                        </div>
+                    `
+                });
+                
+                // Abrir ventana de información al hacer clic en el marcador
+                marker.addListener('click', () => {
+                    infoWindow.open(map, marker);
+                });
+            });
+            
+            // Centrar el mapa al hacer clic en el botón
+            document.getElementById('center-map').addEventListener('click', () => {
+                map.setCenter(currentPosition);
+                map.setZoom(8);
+            });
+        }
         
         // Alternar entre vistas
         const viewBtns = document.querySelectorAll('.view-btn');
@@ -768,6 +910,13 @@
                 if (btn.textContent === 'Mapa') {
                     mapContainer.style.display = 'block';
                     resultsList.style.display = 'grid';
+                    // Redimensionar el mapa para asegurar el renderizado correcto
+                    setTimeout(() => {
+                        if (map) {
+                            google.maps.event.trigger(map, 'resize');
+                            map.setCenter(currentPosition);
+                        }
+                    }, 100);
                 } else if (btn.textContent === 'Lista') {
                     mapContainer.style.display = 'none';
                     resultsList.style.display = 'block';
@@ -794,6 +943,14 @@
             console.log("Zonas seleccionadas:", selectedZones);
             // Aquí iría la lógica para filtrar los resultados
             alert(`Mostrando resultados para: ${selectedZones.join(', ')}`);
+        });
+        
+        // Manejar el redimensionamiento del mapa cuando cambia la vista
+        window.addEventListener('resize', () => {
+            if (map) {
+                google.maps.event.trigger(map, 'resize');
+                map.setCenter(currentPosition);
+            }
         });
     </script>
 </body>
