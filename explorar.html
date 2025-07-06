@@ -78,7 +78,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             height: fit-content;
             position: relative;
-            z-index: 10; /* Asegurar que esté sobre el mapa */
+            z-index: 100; /* Aumentado para estar sobre el mapa */
         }
         
         .filters h2 {
@@ -166,7 +166,7 @@
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             position: relative;
-            z-index: 10; /* Asegurar que esté sobre el mapa */
+            z-index: 100; /* Aumentado para estar sobre el mapa */
         }
         
         .view-toggle {
@@ -196,12 +196,12 @@
         }
         
         .map-container {
-            height: 500px; /* Mayor altura para mejor visualización */
+            height: 500px;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             position: relative;
-            z-index: 1; /* Nivel inferior para el mapa */
+            z-index: 1; /* Mantenemos bajo para el contenedor */
         }
         
         #explore-map {
@@ -210,12 +210,18 @@
             position: relative;
         }
         
+        /* Forzar el z-index del iframe de Google Maps */
+        #explore-map iframe {
+            position: relative;
+            z-index: 1 !important;
+        }
+        
         .results-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
             position: relative;
-            z-index: 10; /* Asegurar que esté sobre el mapa */
+            z-index: 10;
         }
         
         .result-card {
@@ -343,7 +349,6 @@
                 z-index: 100;
             }
             
-            /* Asegurar que el mapa tenga suficiente espacio */
             .map-container {
                 margin-top: 20px;
             }
@@ -416,7 +421,7 @@
     <nav>
         <div class="logo">Turismo Araucanía</div>
         <div class="nav-links">
-            <a href="#">🏠 Inicio</a>
+            <a href="index.html">🏠 Inicio </a>
             <a href="#" class="active">🔍 Explorar</a>
             <a href="#">💬 Chat</a>
             <a href="#">📝 Reseñas</a>
@@ -556,7 +561,7 @@
             <div class="results-list">
                 <!-- Pucón -->
                 <article class="result-card">
-                    <div class="result-img" style="background-image: url('https://images.unsplash.com/photo-1582972236019-ea9e5d828a21')">
+                    <div class="result-img" style="background-image: url('https://media.istockphoto.com/id/175997057/photo/volcano-villarica-at-sunset.jpg?s=2048x2048&w=is&k=20&c=bV8FxGVgYWao2KY4qMZGy_q-nFn08KwF7IpZ_VStibM=')">
                         <span class="result-badge">Popular</span>
                     </div>
                     <div class="result-info">
@@ -616,7 +621,7 @@
                 
                 <!-- Lago Budi -->
                 <article class="result-card">
-                    <div class="result-img" style="background-image: url('https://images.unsplash.com/photo-1601979031925-424e53b6caaa')">
+                    <div class="result-img" style="background-image: url('https://cdn.pixabay.com/photo/2023/03/20/02/11/bridge-7863619_1280.jpg')">
                         <span class="result-badge">Cultural</span>
                     </div>
                     <div class="result-info">
@@ -676,7 +681,7 @@
                 
                 <!-- Parque Nacional Nahuelbuta -->
                 <article class="result-card">
-                    <div class="result-img" style="background-image: url('https://images.unsplash.com/photo-1601972599720-36938d4ecd31')">
+                    <div class="result-img" style="background-image: url('https://cdn.pixabay.com/photo/2021/01/08/17/56/river-5900547_1280.jpg')">
                         <span class="result-badge">Naturaleza</span>
                     </div>
                     <div class="result-info">
@@ -706,7 +711,7 @@
                 
                 <!-- Temuco -->
                 <article class="result-card">
-                    <div class="result-img" style="background-image: url('https://images.unsplash.com/photo-1605540436563-5bca919ae766')">
+                    <div class="result-img" style="background-image: url('https://media.istockphoto.com/id/2159071116/photo/aerial-view-of-temuco.jpg?s=2048x2048&w=is&k=20&c=DkDy11NhhS4o8I4Ba1APwB7ApJ8H6L1_aRaXFxz3Ho4=')">
                         <span class="result-badge">Ciudad</span>
                     </div>
                     <div class="result-info">
